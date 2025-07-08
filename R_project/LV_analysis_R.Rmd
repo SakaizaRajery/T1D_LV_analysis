@@ -1,0 +1,57 @@
+---
+title: "T1D_LV_analysis"
+output: html_document
+date: "2025-07-08"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse, warn.conflicts=FALSE)
+```
+
+
+# Prioritizing LVs associated with T1D in both UK Biobank and e-merge
+
+## Importing data: UKBiobank and emerge LV, phenotype traits strings
+```{r}
+# Import data
+gls_phenomexcan <- readRDS("data/input/gls-summary-phenomexcan.rds")
+gls_emerge <- readRDS("data/input/gls-summary-emerge.rds")
+
+# Type 1 diabetes traits in dataset 
+UK_biobank_traits <-  c('Type 1 diabetes with ketoacidosis','Type 1 diabetes', 'Non-cancer illness code, self-reported: type 1 diabetes', 'Type 1 diabetes without complications','Type 1 diabetes with ophthalmic complications')
+emerge_trait <- 'Type 1 diabetes'
+
+# setting threshold 
+threshold <- 0.05
+```
+
+
+## LVs associated with T1D in phenomexcan and emerge at an FDR adjusted threshold
+```{R}
+## Phenomexcan
+phe_T1D_LVs <- gls_phenomexcan[gls_phenomexcan$phenotype_desc %in% UK_biobank_traits,]
+phe_T1D_LVs$new_fdr_UK <- p.adjust(phe_T1D_LVs$pvalue, method = "BH")
+phe_T1D_LVs_0.05_fdr <- phe_T1D_LVs[phe_T1D_LVs$new_fdr_UK < threshold,]
+
+## E-merge
+e_T1D_LVs <- gls_emerge[gls_emerge$phenotype_desc %in% emerge_trait,]
+e_T1D_LVs$new_fdr_e <- p.adjust(e_T1D_LVs$pvalue, method = "BH")
+e_T1D_LVs_0.05_fdr <- e_T1D_LVs[e_T1D_LVs$new_fdr_e < threshold,]
+
+## Joining Phenomexcana and E-merge
+phe_U_e_fdr_0.05 <- inner_join(phe_T1D_LVs_0.05_fdr,e_T1D_LVs_0.05_fdr, by = "lv")
+
+## Phenotype description code (.x is UKbiobank, .y is emerge)
+pheno_descr_code <- phe_U_e_fdr_0.05 [,c('phenotype.x','phenotype_desc.x','phenotype.y','phenotype_desc.y')]%>%
+distinct()
+pheno_descr_code
+
+## remove columns that are not needed
+merged_cohort_T1D <- phe_U_e_fdr_0.05%>%
+arrange(lv)%>%
+select(c(3,2,4,6,8,9,11))
+colnames(merged_cohort_T1D) <- c("LV","UK-Bio-Pheno", "UK-Bio-p-value","UK_Bio_fdr","emerge-pheno","emerge-p-value","emerge-fdr")
+merged_cohort_T1D
+```
