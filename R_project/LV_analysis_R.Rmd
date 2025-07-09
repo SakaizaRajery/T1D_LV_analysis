@@ -10,15 +10,20 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse, warn.conflicts=FALSE)
 ```
 
-
 # Prioritizing LVs associated with T1D in both UK Biobank and e-merge
+## Importing data: UKBiobank and emerge LV
 
-## Importing data: UKBiobank and emerge LV, phenotype traits strings
 ```{r}
 # Import data
-gls_phenomexcan <- readRDS("data/input/gls-summary-phenomexcan.rds")
-gls_emerge <- readRDS("data/input/gls-summary-emerge.rds")
+path_phenomexcan <- "https://github.com/pivlab/phenoplier/raw/68c47d2fbaa900372b125b21927752dbb6acc741/data/gls/gls-summary-phenomexcan.rds" 
+path_emerge <- "https://github.com/pivlab/phenoplier/raw/68c47d2fbaa900372b125b21927752dbb6acc741/data/gls/gls-summary-emerge.rds"
 
+gls_phenomexcan <- readRDS(url(path_phenomexcan, "rb"))
+gls_emerge <- readRDS(url(path_emerge, "rb"))
+```
+
+## Setting phenotype traits and threshold
+```{r}
 # Type 1 diabetes traits in dataset 
 UK_biobank_traits <-  c('Type 1 diabetes with ketoacidosis','Type 1 diabetes', 'Non-cancer illness code, self-reported: type 1 diabetes', 'Type 1 diabetes without complications','Type 1 diabetes with ophthalmic complications')
 emerge_trait <- 'Type 1 diabetes'
@@ -26,7 +31,6 @@ emerge_trait <- 'Type 1 diabetes'
 # setting threshold 
 threshold <- 0.05
 ```
-
 
 ## LVs associated with T1D in phenomexcan and emerge at an FDR adjusted threshold
 ```{R}
@@ -40,7 +44,7 @@ e_T1D_LVs <- gls_emerge[gls_emerge$phenotype_desc %in% emerge_trait,]
 e_T1D_LVs$new_fdr_e <- p.adjust(e_T1D_LVs$pvalue, method = "BH")
 e_T1D_LVs_0.05_fdr <- e_T1D_LVs[e_T1D_LVs$new_fdr_e < threshold,]
 
-## Joining Phenomexcana and E-merge
+## Joining Phenomexcan and E-merge
 phe_U_e_fdr_0.05 <- inner_join(phe_T1D_LVs_0.05_fdr,e_T1D_LVs_0.05_fdr, by = "lv")
 
 ## Phenotype description code (.x is UKbiobank, .y is emerge)
