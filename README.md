@@ -1,3 +1,6 @@
+
+
+_____________________________________________________
 This repository contains starter configurations for the conventional commit messages as described [here](https://www.conventionalcommits.org/en/v1.0.0/), as well as linter configurations for Python and R.
 
 ## How this repository was created
