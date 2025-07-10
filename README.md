@@ -47,9 +47,9 @@ T1D is an autoimmune disease that progresses through three stages. The earliest 
 <!-- ROADMAP -->
 ## Roadmap
 
-| File Name/ Location           | Description  |
+| File Name (code)           | Description  |
 |:-------------:|:-----|
-|   [LV_analysis_R](https://sakaizarajery.github.io/T1D_LV_analysis/) |Identification of Latent Variables (LV) associated with T1D|
+|   [LV_analysis_R.rmd](https://sakaizarajery.github.io/T1D_LV_analysis/) |Identification of Latent Variables (LV) associated with T1D|
 
 
 ## How to reproduce this project
